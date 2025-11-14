@@ -1,0 +1,13 @@
+from sqlalchemy import Column, String, JSON, DateTime
+from app.db.database import Base
+
+class Flow(Base):
+    __tablename__ = "flows"
+
+    id = Column(String, primary_key=True, index=True)
+    name = Column(String, index=True)
+    description = Column(String, nullable=True)
+    nodes = Column(JSON)
+    edges = Column(JSON)
+    created_at = Column(DateTime)
+    updated_at = Column(DateTime)
