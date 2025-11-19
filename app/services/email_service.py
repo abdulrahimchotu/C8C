@@ -22,9 +22,10 @@ async def send_email(access_token: str, email_data: EmailSchema) -> Dict:
         raise ValueError("Access token is missing for sending email.")
 
     message = MIMEText(email_data.body)
-    message["to_"] = email_data.to
-    message["from_"] = email_data.from_
+    message["to"] = email_data.to_
+    message["from"] = email_data.from_
     message["subject"] = email_data.subject
+    # print(message.as_string())
 
     # Encode the message in URL-safe base64
     encoded_message = base64.urlsafe_b64encode(message.as_bytes()).decode()

@@ -19,6 +19,8 @@ class Node(BaseModel):
     type: str
     position: Position
     config: Dict[str, Any] = {}
+    dependents: List[str] = []
+    dependencies: List[str] = []
 
 
 class Flow(BaseModel):
