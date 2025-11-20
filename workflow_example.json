@@ -1,0 +1,71 @@
+{
+  "id": "c5e1e469-ca46-4025-8c43-6c52dc4b69fc",
+  "name": "Trigger->HTTP->Email->Slack Workflow",
+  "description": "Sequential workflow with trigger, HTTP request, email, and Slack notification",
+  "nodes": [
+    {
+      "id": "trigger-1",
+      "type": "trigger",
+      "position": {"x": 100, "y": 100},
+      "config": {"message": "Workflow started"},
+      "dependents": ["http-1"],
+      "dependencies": []
+    },
+    {
+      "id": "http-1", 
+      "type": "http",
+      "position": {"x": 300, "y": 100},
+      "config": {
+        "method": "GET",
+        "url": "https://jsonplaceholder.typicode.com/posts/1",
+        "headers": {"Accept": "application/json"}
+      },
+      "dependents": ["email-1"],
+      "dependencies": ["trigger-1"]
+    },
+    {
+      "id": "email-1",
+      "type": "gmail", 
+      "position": {"x": 500, "y": 100},
+      "config": {
+        "from_": "sender@example.com",
+        "to_": "recipient@example.com", 
+        "subject": "Workflow Notification",
+        "body": "HTTP request completed successfully",
+        "access_token": "your_gmail_access_token"
+      },
+      "dependents": ["slack-1"],
+      "dependencies": ["http-1"]
+    },
+    {
+      "id": "slack-1",
+      "type": "slack",
+      "position": {"x": 700, "y": 100},
+      "config": {
+        "message": "Workflow completed successfully!",
+        "token": "your_slack_token"
+      },
+      "dependents": [],
+      "dependencies": ["email-1"]
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge-1",
+      "source": "trigger-1",
+      "target": "http-1"
+    },
+    {
+      "id": "edge-2", 
+      "source": "http-1",
+      "target": "email-1"
+    },
+    {
+      "id": "edge-3",
+      "source": "email-1", 
+      "target": "slack-1"
+    }
+  ],
+  "created_at": "2024-01-15T10:00:00Z",
+  "updated_at": "2024-01-15T10:00:00Z"
+}

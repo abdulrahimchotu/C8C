@@ -1,0 +1,30 @@
+{
+    "name": "My Test HTTP Flow",
+    "description": "A flow that makes an external HTTP request.",
+    "nodes": [
+        {
+            "id": "node-1",
+            "type": "trigger",
+            "position": { "x": 100, "y": 100 },
+            "config": { "message": "Flow started" }
+        },
+        {          
+            "id": "node-2",
+            "type": "http",
+            "position": { "x": 400, "y": 100 },
+            "config": {
+            "method": "GET",
+            "url": "https://jsonplaceholder.typicode.com/todos/1",
+            "headers": {
+            "Accept": "application/json"
+            }
+           }
+        }],
+        "edges": [
+        {
+            "id": "edge-1",
+            "source": "node-1",
+            "target": "node-2"
+        }
+        ]
+}
