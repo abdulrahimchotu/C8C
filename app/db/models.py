@@ -11,3 +11,13 @@ class Flow(Base):
     edges = Column(JSON)
     created_at = Column(DateTime)
     updated_at = Column(DateTime)
+
+class FlowExecution(Base):
+    __tablename__ = "flow_executions"
+
+    id = Column(String, primary_key=True, index=True)
+    flow_id = Column(String, index=True)
+    status = Column(String)  # pending, running, succeeded, failed
+    started_at = Column(DateTime)
+    finished_at = Column(DateTime, nullable=True)
+    results = Column(JSON, nullable=True)

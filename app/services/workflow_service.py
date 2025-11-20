@@ -179,6 +179,32 @@ async def _execute_node(node, flow_outputs: Dict[str, Any]) -> NodeResult:
         finished_at=datetime.now(timezone.utc)
     )
 
+async def execute_flow_background(flow_id: str, execution_id: str) -> None:
+    """
+    Background task to execute flow and save results to database.
+    """
+    from app.db.database import AsyncSessionLocal
+    
+    async with AsyncSessionLocal() as db:
+        try:
+            # Update status to running
+            await crud.update_flow_execution(db, execution_id, "running")
+            
+            # Execute the flow
+            result = await execute_flow(db, flow_id)
+            if result:
+                # Save results to database
+                results_dict = {k: v.model_dump() for k, v in result.results.items()}
+                await crud.update_flow_execution(
+                    db, execution_id, result.status, result.finished_at, results_dict
+                )
+        except Exception as e:
+            # Handle any errors during execution
+            await crud.update_flow_execution(
+                db, execution_id, "failed", datetime.now(timezone.utc), 
+                {"error": str(e)}
+            )
+
 async def execute_flow(db: AsyncSession, flow_id: str) -> Optional[FlowResult]:
     """
     Executes a flow using topological sort for proper dependency order.

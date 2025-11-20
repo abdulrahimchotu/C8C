@@ -51,6 +51,12 @@ class FlowResult(BaseModel):
     finished_at: Optional[datetime]
     results: Dict[str, NodeResult]  # node_id -> result
 
+class ExecutionStatus(BaseModel):
+    execution_id: str
+    flow_id: str
+    status: str
+    message: str
+
 # Schema for creating a new flow
 class FlowCreate(BaseModel):
     name: str

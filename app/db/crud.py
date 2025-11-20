@@ -57,3 +57,57 @@ async def update_flow(db: AsyncSession, flow_id: str, flow_update_data: dict) ->
 
     await db.commit()
     return await get_flow(db, flow_id)
+
+async def create_flow_execution(db: AsyncSession, execution: pydantic_models.FlowResult) -> db_models.FlowExecution:
+    """
+    Create a new flow execution record.
+    """
+    results_dict = {k: v.model_dump() for k, v in execution.results.items()}
+    
+    db_execution = db_models.FlowExecution(
+        id=execution.id,
+        flow_id=execution.flow_id,
+        status=execution.status,
+        started_at=execution.started_at,
+        finished_at=execution.finished_at,
+        results=results_dict
+    )
+    db.add(db_execution)
+    await db.commit()
+    await db.refresh(db_execution)
+    return db_execution
+
+async def get_flow_execution(db: AsyncSession, execution_id: str) -> Optional[db_models.FlowExecution]:
+    """
+    Get a flow execution by ID.
+    """
+    result = await db.execute(select(db_models.FlowExecution).filter(db_models.FlowExecution.id == execution_id))
+    return result.scalars().first()
+
+async def update_flow_execution(db: AsyncSession, execution_id: str, status: str, finished_at=None, results=None) -> Optional[db_models.FlowExecution]:
+    """
+    Update flow execution status and results.
+    """
+    import json
+    from datetime import datetime
+    
+    def serialize_datetime(obj):
+        if isinstance(obj, datetime):
+            return obj.isoformat()
+        raise TypeError(f"Object of type {type(obj)} is not JSON serializable")
+    
+    update_data = {"status": status}
+    if finished_at:
+        update_data["finished_at"] = finished_at
+    if results:
+        # Serialize results to handle datetime objects
+        update_data["results"] = json.loads(json.dumps(results, default=serialize_datetime))
+    
+    stmt = update(db_models.FlowExecution).where(db_models.FlowExecution.id == execution_id).values(**update_data)
+    result = await db.execute(stmt)
+    
+    if result.rowcount == 0:
+        return None
+    
+    await db.commit()
+    return await get_flow_execution(db, execution_id)
